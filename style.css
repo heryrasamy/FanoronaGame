@@ -1,5 +1,39 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    margin-top: 50px;
+    margin: 50px;
 }
+
+#gameBoard {
+    display: inline-block;
+    margin-top: 20px;
+}
+
+.row {
+    display: flex;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1px;
+    cursor: pointer;
+}
+
+    .cell.selected {
+        background-color: #ddd;
+    }
+
+    .cell.player {
+        color: blue;
+        font-weight: bold;
+    }
+
+    .cell.ai {
+        color: red;
+        font-weight: bold;
+    }
