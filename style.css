@@ -56,9 +56,9 @@ h1 {
         /* lignes verticales */
         linear-gradient(to right, #8b4513 2px, transparent 2px),
         /* diagonales / */
-        repeating-linear-gradient(63deg, #8b4513 0 2px, transparent 2px 60px),
+        repeating-linear-gradient(45deg, #8b4513 0 2px, transparent 2px 84.85px),
         /* diagonales \ */
-        repeating-linear-gradient(117deg, #8b4513 0 2px, transparent 2px 60px);
+        repeating-linear-gradient(-45deg, #8b4513 0 2px, transparent 2px 84.85px);
         background-size: 60px 60px;
         pointer-events: none;
     }
