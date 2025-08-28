@@ -1,13 +1,24 @@
-< !DOCTYPE html >
-    <html lang="fr">
-        <head>
-            <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Fanorona Minimal</title>
-                    <link rel="stylesheet" href="style.css">
-                    </head>
-                    <body>
-                        <h1>Bonjour Fanorona !</h1>
-                        <script src="script.js"></script>
-                    </body>
-                </html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fanorona - Défi contre l'IA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1> FANORONA - Défi contre l'IA</h1>
+    <div id="gameStatus"> AlEFA !</div>
+
+    <div id="scoreBoard">
+        <span>Vos pions (X): <span id="whiteScore">22</span></span>
+        <span>Pions IA (O): <span id="blackScore">22</span></span>
+    </div>
+
+    <div id="boardContainer"></div>
+
+    <button id="resetButton">Rejouer</button>
+
+    <script src="script.js"></script>
+</body>
+</html>

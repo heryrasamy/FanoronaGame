@@ -1,5 +1,137 @@
+/* ===== Style général ===== */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    margin-top: 50px;
+    margin: 0;
+    padding: 20px;
+    background: #f0f0f0;
+}
+
+/* ===== Titre ===== */
+h1 {
+    font-size: 2em;
+    color: #d32f2f;
+    margin-bottom: 10px;
+}
+
+/* ===== Statut du jeu ===== */
+#gameStatus {
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    display: inline-block;
+}
+
+/* ===== Score ===== */
+#scoreBoard {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+    #scoreBoard span {
+        font-weight: bold;
+    }
+
+/* ===== Plateau de jeu ===== */
+#boardContainer {
+    display: grid;
+    grid-template-columns: repeat(9, 40px);
+    grid-template-rows: repeat(5, 40px);
+    justify-content: center;
+    gap: 5px;
+    margin: 0 auto 20px auto;
+}
+
+/* ===== Cellules ===== */
+.cell {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #fff;
+    transition: background 0.2s, transform 0.2s;
+}
+
+    .cell:hover {
+        background-color: #e0e0e0;
+        transform: scale(1.05);
+    }
+
+/* ===== Cellule sélectionnée ===== */
+.selected {
+    background-color: #ffeb3b;
+}
+
+/* ===== Cellules avec mouvement possible ===== */
+.possible-move {
+    background-color: #ff9800;
+}
+
+/* ===== Couleurs des pions ===== */
+.player {
+    color: blue;
+    font-weight: bold;
+}
+
+.ai {
+    color: red;
+    font-weight: bold;
+}
+
+/* ===== Bouton Rejouer ===== */
+#resetButton {
+    padding: 10px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    color: white;
+    background-color: #007aff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+    #resetButton:hover {
+        background-color: #005fcc;
+        transform: scale(1.05);
+    }
+
+/* ===== Responsive pour mobile ===== */
+@media (max-width: 500px) {
+    #boardContainer {
+        grid-template-columns: repeat(9, 30px);
+        grid-template-rows: repeat(5, 30px);
+        gap: 4px;
+    }
+
+    .cell {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+
+    #scoreBoard {
+        gap: 20px;
+        font-size: 1em;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    #gameStatus {
+        font-size: 1em;
+        padding: 8px;
+    }
 }
