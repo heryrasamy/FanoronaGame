@@ -50,20 +50,19 @@ h1 {
         left: 0;
         width: 100%;
         height: 100%;
-        background-image:
+        background:
+        /* diagonales / */
+        repeating-linear-gradient( 45deg, transparent 0px, transparent 28px, #8b4513 28px, #8b4513 32px, transparent 32px, transparent 60px ),
+        /* diagonales \ */
+        repeating-linear-gradient( -45deg, transparent 0px, transparent 28px, #8b4513 28px, #8b4513 32px, transparent 32px, transparent 60px ),
         /* lignes horizontales */
         linear-gradient(to bottom, #8b4513 2px, transparent 2px),
         /* lignes verticales */
-        /* diagonales / */
-        repeating-linear-gradient(45deg, #8b4513 0 2px, transparent 2px 84.85px),
-        /* diagonales \ */
-        repeating-linear-gradient(-45deg, #8b4513 0 2px, transparent 2px 84.85px);
-        repeating-linear-gradient(-45deg, #8b4513 0 2px, transparent 2px 84.85px);
+        linear-gradient(to right, #8b4513 2px, transparent 2px);
         background-size: 60px 60px;
         pointer-events: none;
     }
-
-/* Cases */
+    /* Cases */
 .cell {
     display: flex;
     align-items: center;
