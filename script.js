@@ -23,7 +23,6 @@ function initBoard() {
             cell.classList.add('cell');
             cell.dataset.row = i;
             cell.dataset.col = j;
-            cell.textContent = board[i][j] === " " ? "" : board[i][j];
             if (board[i][j] === "B") cell.classList.add('ai');
             if (board[i][j] === "W") cell.classList.add('player');
             if (selected && selected[0] === i && selected[1] === j) cell.classList.add('selected');
@@ -98,8 +97,8 @@ function movePiece(from, to) {
     possibleMoves = getAdditionalCaptures(ti, tj, [fi, fj]);
 
     if (possibleMoves.length > 0) {
-        document.getElementById('gameStatus').textContent = " COMBO ! Capture multiple - Continuez l'attaque !";
-        return; // Ne pas passer le tour
+        document.getElementById('gameStatus').textContent = "  Capture multiple - Continuez l'attaque !";
+        return;
     }
 
     selected = null;
@@ -110,7 +109,7 @@ function movePiece(from, to) {
     if (!checkGameEnd()) setTimeout(makeAIMove, 500);
 }
 
-// ===== Récupération des mouvements valides =====
+// ===== Mouvements valides =====
 function getValidMoves(i, j) {
     const moves = [];
     const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
@@ -123,21 +122,21 @@ function getValidMoves(i, j) {
     return moves;
 }
 
-// ===== Captures pour un déplacement =====
+// ===== Captures =====
 function checkCaptures(fromI, fromJ, toI, toJ, player) {
     const opponent = player === "W" ? "B" : "W";
     const captures = [];
     const di = toI - fromI;
     const dj = toJ - fromJ;
 
-    // Capture par approche
+    // Approche
     let ni = toI + di, nj = toJ + dj;
     while (ni >= 0 && ni < ROWS && nj >= 0 && nj < COLS && board[ni][nj] === opponent) {
         captures.push([ni, nj]);
         ni += di; nj += dj;
     }
 
-    // Capture par retrait
+    // Retrait
     ni = fromI - di; nj = fromJ - dj;
     while (ni >= 0 && ni < ROWS && nj >= 0 && nj < COLS && board[ni][nj] === opponent) {
         captures.push([ni, nj]);
@@ -147,13 +146,13 @@ function checkCaptures(fromI, fromJ, toI, toJ, player) {
     return captures;
 }
 
-// ===== Captures supplémentaires pour combos =====
+// ===== Combos =====
 function getAdditionalCaptures(i, j, previous) {
     const moves = getValidMoves(i, j);
     return moves.filter(([ni, nj]) => checkCaptures(i, j, ni, nj, "W").length > 0);
 }
 
-// ===== IA basique =====
+// ===== IA =====
 function makeAIMove() {
     if (gameEnded) return;
     const moves = [];
@@ -179,15 +178,12 @@ function makeAIMove() {
     board[ti][tj] = board[si][sj];
     board[si][sj] = " ";
 
-    whiteScore -= move.captures.filter(c => board[c[0]][c[1]] === "W").length;
-    blackScore = board.flat().filter(c => c === "B").length;
-
     playerTurn = true;
     initBoard();
     checkGameEnd();
 }
 
-// ===== Vérification fin de partie =====
+// ===== Fin de partie =====
 function checkGameEnd() {
     const whiteLeft = board.flat().filter(c => c === "W").length;
     const blackLeft = board.flat().filter(c => c === "B").length;
@@ -198,39 +194,39 @@ function checkGameEnd() {
         return true;
     }
     if (blackLeft === 0) {
-        document.getElementById('gameStatus').textContent = "bravo Tu as gagné !";
+        document.getElementById('gameStatus').textContent = "Bravo, Tu as gagné !";
         gameEnded = true;
         return true;
     }
     return false;
 }
 
-// ===== Mise à jour des scores =====
+// ===== Scores =====
 function updateScore() {
     document.getElementById('whiteScore').textContent = board.flat().filter(c => c === "W").length;
     document.getElementById('blackScore').textContent = board.flat().filter(c => c === "B").length;
 }
 
-// ===== Mise à jour du statut =====
+// ===== Statut =====
 function updateStatus() {
     if (gameEnded) return;
     const status = document.getElementById('gameStatus');
     if (playerTurn) {
-        status.textContent = " À ton tour - Attaquez l'IA !";
+        status.textContent = "À ton tour !";
         status.style.background = "linear-gradient(135deg, #27ae60, #2ecc71)";
     } else {
-        status.textContent = " L'IA va attaqué prépare toi !";
+        status.textContent = "L'IA va attaquer prépare toi !";
         status.style.background = "linear-gradient(135deg, #e74c3c, #c0392b)";
     }
 }
 
-// ===== Réinitialisation =====
+// ===== Reset =====
 document.getElementById('resetButton').addEventListener('click', () => {
     createInitialBoard();
     initBoard();
 });
 
-// ===== Démarrage du jeu =====
+// ===== Lancement =====
 window.onload = function () {
     createInitialBoard();
     initBoard();

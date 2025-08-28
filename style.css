@@ -1,137 +1,123 @@
-/* ===== Style général ===== */
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
     margin: 0;
-    padding: 20px;
-    background: #f0f0f0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #deb887;
+    font-family: Arial, sans-serif;
 }
 
-/* ===== Titre ===== */
 h1 {
-    font-size: 2em;
-    color: #d32f2f;
-    margin-bottom: 10px;
+    color: #5a3e1b;
+    margin: 10px;
 }
 
-/* ===== Statut du jeu ===== */
-#gameStatus {
-    font-size: 1.2em;
-    font-weight: bold;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    background: linear-gradient(135deg, #27ae60, #2ecc71);
-    color: white;
-    display: inline-block;
-}
-
-/* ===== Score ===== */
 #scoreBoard {
     display: flex;
-    justify-content: center;
-    gap: 40px;
-    font-size: 1.1em;
-    margin-bottom: 20px;
+    justify-content: space-between;
+    width: 300px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: bold;
 }
 
-    #scoreBoard span {
-        font-weight: bold;
+#gameStatus {
+    padding: 5px 10px;
+    color: white;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Plateau */
+#boardContainer {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(9, 60px);
+    grid-template-rows: repeat(5, 60px);
+    gap: 0;
+    background: #f5deb3;
+    border: 4px solid #5a3e1b;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+    /* Lignes */
+    #boardContainer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image:
+        /* lignes horizontales */
+        linear-gradient(to bottom, #8b4513 2px, transparent 2px),
+        /* lignes verticales */
+        linear-gradient(to right, #8b4513 2px, transparent 2px),
+        /* diagonales / */
+        repeating-linear-gradient(63deg, #8b4513 0 2px, transparent 2px 60px),
+        /* diagonales \ */
+        repeating-linear-gradient(117deg, #8b4513 0 2px, transparent 2px 60px);
+        background-size: 60px 60px;
+        pointer-events: none;
     }
 
-/* ===== Plateau de jeu ===== */
-#boardContainer {
-    display: grid;
-    grid-template-columns: repeat(9, 40px);
-    grid-template-rows: repeat(5, 40px);
-    justify-content: center;
-    gap: 5px;
-    margin: 0 auto 20px auto;
-}
-
-/* ===== Cellules ===== */
+/* Cases */
 .cell {
-    width: 40px;
-    height: 40px;
-    border: 2px solid #333;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    position: relative;
+}
+
+/* Pions */
+.player, .ai {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.3), inset 3px 3px 6px rgba(255,255,255,0.5);
     cursor: pointer;
-    background-color: #fff;
-    transition: background 0.2s, transform 0.2s;
+    transition: transform 0.2s;
 }
 
-    .cell:hover {
-        background-color: #e0e0e0;
-        transform: scale(1.05);
-    }
-
-/* ===== Cellule sélectionnée ===== */
-.selected {
-    background-color: #ffeb3b;
-}
-
-/* ===== Cellules avec mouvement possible ===== */
-.possible-move {
-    background-color: #ff9800;
-}
-
-/* ===== Couleurs des pions ===== */
+/* Couleur joueur (bleu) */
 .player {
-    color: blue;
-    font-weight: bold;
+    background: radial-gradient(circle at 10px 10px, #87cefa, #0000cd);
 }
 
+/* Couleur IA (rouge) */
 .ai {
-    color: red;
-    font-weight: bold;
+    background: radial-gradient(circle at 10px 10px, #ff7f7f, #8b0000);
 }
 
-/* ===== Bouton Rejouer ===== */
+/* Sélection */
+.selected {
+    outline: 3px solid yellow;
+}
+
+/* Mouvement possible */
+.possible-move {
+    background-color: rgba(255, 255, 0, 0.3);
+}
+
+/* Survol */
+.player:hover, .ai:hover {
+    transform: scale(1.1);
+}
+
+/* Bouton reset */
 #resetButton {
+    margin-top: 15px;
     padding: 10px 20px;
-    font-size: 1em;
-    font-weight: bold;
-    color: white;
-    background-color: #007aff;
     border: none;
+    background: #5a3e1b;
+    color: white;
+    font-size: 16px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
 }
 
     #resetButton:hover {
-        background-color: #005fcc;
-        transform: scale(1.05);
+        background: #7b4a1d;
     }
-
-/* ===== Responsive pour mobile ===== */
-@media (max-width: 500px) {
-    #boardContainer {
-        grid-template-columns: repeat(9, 30px);
-        grid-template-rows: repeat(5, 30px);
-        gap: 4px;
-    }
-
-    .cell {
-        width: 30px;
-        height: 30px;
-        font-size: 16px;
-    }
-
-    #scoreBoard {
-        gap: 20px;
-        font-size: 1em;
-    }
-
-    h1 {
-        font-size: 1.5em;
-    }
-
-    #gameStatus {
-        font-size: 1em;
-        padding: 8px;
-    }
-}
