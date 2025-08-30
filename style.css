@@ -1,122 +1,141 @@
+:root {
+    --cell: 72px; /* taille d'une case */
+    --line: #8b4513; /* couleur des lignes */
+    --wood: #f5deb3; /* bois clair */
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
-    padding: 0;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     background: #deb887;
-    font-family: Arial, sans-serif;
 }
 
 h1 {
+    margin: 12px 0 6px;
     color: #5a3e1b;
-    margin: 10px;
 }
 
 #scoreBoard {
     display: flex;
-    justify-content: space-between;
-    width: 300px;
-    margin-bottom: 10px;
-    font-size: 18px;
-    font-weight: bold;
+    gap: 24px;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
 #gameStatus {
-    padding: 5px 10px;
-    color: white;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
     margin-bottom: 10px;
-    border-radius: 5px;
-    font-size: 16px;
+    font-weight: 600;
 }
 
-/* Plateau */
-#boardContainer {
+#boardWrapper {
     position: relative;
-    display: grid;
-    grid-template-columns: repeat(9, 60px);
-    grid-template-rows: repeat(5, 60px);
-    gap: 0;
-    background: #f5deb3;
+    width: calc(9 * var(--cell));
+    height: calc(5 * var(--cell));
+    background: var(--wood);
     border: 4px solid #5a3e1b;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0,0,0,.15), inset 0 0 40px rgba(139,69,19,.15);
+    overflow: hidden;
 }
 
-    /* Lignes */
-    #boardContainer::before #boardContainer::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image:
-        /* lignes horizontales */
-        linear-gradient(to bottom, #8b4513 2px, transparent 2px),
-        /* lignes verticales */
-        linear-gradient(to right, #8b4513 2px, transparent 2px),
-        /* diagonales / */
-        repeating-linear-gradient(45deg, #8b4513 0 2px, transparent 2px 85px),
-        /* diagonales \ */
-        repeating-linear-gradient(135deg, #8b4513 0 2px, transparent 2px 85px);
-        background-size: 60px 60px;
-        pointer-events: none;
-    }
-    /* Cases */
+/* Canvas des lignes (derrière) */
+#boardCanvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Grille d'intersections (devant) */
+#boardContainer {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+}
+
+/* Chaque intersection (= case cliquable) */
 .cell {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    user-select: none;
+    /* on garde W/B mais invisibles pour ne rien casser */
+    color: transparent;
+    font-size: 0;
 }
 
-/* Pions */
-.player, .ai {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.3), inset 3px 3px 6px rgba(255,255,255,0.5);
-    cursor: pointer;
-    transition: transform 0.2s;
-}
+    /* Pion visuel via pseudo-élément, sans changer ta logique */
+    .cell.player::after, .cell.ai::after {
+        content: "";
+        width: calc(var(--cell) * 0.58);
+        height: calc(var(--cell) * 0.58);
+        border-radius: 50%;
+        box-shadow: inset -4px -4px 8px rgba(0,0,0,.35), inset 4px 4px 8px rgba(255,255,255,.55);
+        transition: transform .15s ease;
+        pointer-events: none; /* clic reste sur la case */
+    }
 
-/* Couleur joueur (bleu) */
-.player {
-    background: radial-gradient(circle at 10px 10px, #87cefa, #0000cd);
-}
+    .cell.player::after {
+        background: radial-gradient(circle at 30% 30%, #9ad7ff, #0050c8 65%);
+    }
 
-/* Couleur IA (rouge) */
-.ai {
-    background: radial-gradient(circle at 10px 10px, #ff7f7f, #8b0000);
-}
+    .cell.ai::after {
+        background: radial-gradient(circle at 30% 30%, #ffb3b3, #8b0000 65%);
+    }
 
-/* Sélection */
-.selected {
-    outline: 3px solid yellow;
-}
+    /* Sélection / coups possibles (ta logique ajoute .selected et .possible-move) */
+    .cell.selected::after {
+        outline: 3px solid #ffeb3b;
+        box-shadow: 0 0 0 4px rgba(255,235,59,.35), inset -4px -4px 8px rgba(0,0,0,.35), inset 4px 4px 8px rgba(255,255,255,.55);
+    }
 
-/* Mouvement possible */
-.possible-move {
-    background-color: rgba(255, 255, 0, 0.3);
-}
+    .cell.possible-move {
+        background: radial-gradient(circle, rgba(255,255,0,.25) 0 40%, transparent 41%);
+    }
 
-/* Survol */
-.player:hover, .ai:hover {
-    transform: scale(1.1);
-}
+    /* Micro feedback hover (sans changer la logique) */
+    .cell:hover::after {
+        transform: scale(1.06);
+    }
 
-/* Bouton reset */
 #resetButton {
-    margin-top: 15px;
-    padding: 10px 20px;
-    border: none;
+    margin-top: 12px;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 10px;
     background: #5a3e1b;
-    color: white;
+    color: #fff;
     font-size: 16px;
-    border-radius: 5px;
     cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,.2);
 }
 
     #resetButton:hover {
         background: #7b4a1d;
     }
+
+/* Responsive : rétrécir sur petits écrans */
+@media (max-width: 520px) {
+    :root {
+        --cell: 46px;
+    }
+}
