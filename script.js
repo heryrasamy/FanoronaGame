@@ -13,17 +13,15 @@ let moveHistory = [];
 let captureSequence = false;
 let lastMovePosition = null;
 
-// ===== RÉGLAGE CANVAS (ajout visuel uniquement, ne touche pas à la logique) =====
+// ===== RÉGLAGE CANVAS =====
 const boardWrapper = document.getElementById('boardWrapper');
 const boardContainer = document.getElementById('boardContainer');
 const boardCanvas = document.getElementById('boardCanvas');
 const ctx = boardCanvas.getContext('2d');
 
 function drawBoardCanvas() {
-    // Adapter la taille du canvas au wrapper
     const w = boardWrapper.clientWidth;
     const h = boardWrapper.clientHeight;
-    // Gestion HiDPI
     const dpr = window.devicePixelRatio || 1;
     boardCanvas.width = Math.floor(w * dpr);
     boardCanvas.height = Math.floor(h * dpr);
@@ -35,74 +33,48 @@ function drawBoardCanvas() {
 
     const cellW = w / COLS;
     const cellH = h / ROWS;
-
-    // Style des lignes
     ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--line').trim() || '#8b4513';
     ctx.lineWidth = 2;
 
-    // Points d'intersection (centres de cellules)
     const P = (r, c) => [c * cellW + cellW / 2, r * cellH + cellH / 2];
 
-    // Tracer connexions : droite, bas, diag bas-droite, diag bas-gauche
     ctx.beginPath();
     for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
             const [x, y] = P(r, c);
-
-            if (c + 1 < COLS) { // droite
-                const [x2, y2] = P(r, c + 1);
-                ctx.moveTo(x, y); ctx.lineTo(x2, y2);
-            }
-            if (r + 1 < ROWS) { // bas
-                const [x2, y2] = P(r + 1, c);
-                ctx.moveTo(x, y); ctx.lineTo(x2, y2);
-            }
-            if (r + 1 < ROWS && c + 1 < COLS) { // diag \
-                const [x2, y2] = P(r + 1, c + 1);
-                ctx.moveTo(x, y); ctx.lineTo(x2, y2);
-            }
-            if (r + 1 < ROWS && c - 1 >= 0) { // diag /
-                const [x2, y2] = P(r + 1, c - 1);
-                ctx.moveTo(x, y); ctx.lineTo(x2, y2);
-            }
+            if (c + 1 < COLS) { const [x2, y2] = P(r, c + 1); ctx.moveTo(x, y); ctx.lineTo(x2, y2); }
+            if (r + 1 < ROWS) { const [x2, y2] = P(r + 1, c); ctx.moveTo(x, y); ctx.lineTo(x2, y2); }
+            if (r + 1 < ROWS && c + 1 < COLS) { const [x2, y2] = P(r + 1, c + 1); ctx.moveTo(x, y); ctx.lineTo(x2, y2); }
+            if (r + 1 < ROWS && c - 1 >= 0) { const [x2, y2] = P(r + 1, c - 1); ctx.moveTo(x, y); ctx.lineTo(x2, y2); }
         }
     }
     ctx.stroke();
 
-    // Bordure
     ctx.lineWidth = 4;
     ctx.strokeRect(cellW / 2, cellH / 2, w - cellW, h - cellH);
 }
 
-// Redessiner le canvas quand la fenêtre change de taille
 window.addEventListener('resize', drawBoardCanvas);
 
 // ===== Initialisation du plateau =====
 function initBoard() {
-    // IMPORTANT : on ne supprime QUE les cases, pas le canvas
     boardContainer.innerHTML = '';
-
     for (let i = 0; i < ROWS; i++) {
         for (let j = 0; j < COLS; j++) {
             const cell = document.createElement('div');
             cell.classList.add('cell');
             cell.dataset.row = i;
             cell.dataset.col = j;
-
-            // On garde exactement ton comportement d'origine :
             cell.textContent = board[i][j] === " " ? "" : board[i][j];
             if (board[i][j] === "B") cell.classList.add('ai');
             if (board[i][j] === "W") cell.classList.add('player');
             if (selected && selected[0] === i && selected[1] === j) cell.classList.add('selected');
-
             cell.addEventListener('click', () => handleCellClick(i, j));
             boardContainer.appendChild(cell);
         }
     }
     updateScore();
     updateStatus();
-
-    // Redessiner la grille (visuel)
     drawBoardCanvas();
 }
 
@@ -126,23 +98,16 @@ function createInitialBoard() {
     lastMovePosition = null;
 }
 
-// ===== Gestion du clic sur une cellule =====
+// ===== Gestion du clic =====
 function handleCellClick(i, j) {
-    if (gameEnded) return;
-    if (!playerTurn) return;
-
+    if (gameEnded || !playerTurn) return;
     if (selected) {
         const [si, sj] = selected;
         if (possibleMoves.some(([mi, mj]) => mi === i && mj === j)) {
             movePiece([si, sj], [i, j]);
             return;
-        } else {
-            selected = null;
-            possibleMoves = [];
-            initBoard();
-        }
+        } else { selected = null; possibleMoves = []; initBoard(); }
     }
-
     if (board[i][j] === "W") {
         selected = [i, j];
         possibleMoves = getValidMoves(i, j);
@@ -156,150 +121,69 @@ function handleCellClick(i, j) {
 
 // ===== Déplacement d'un pion =====
 function movePiece(from, to) {
-    const [fi, fj] = from;
-    const [ti, tj] = to;
-
+    const [fi, fj] = from; const [ti, tj] = to;
     const captures = checkCaptures(fi, fj, ti, tj, "W");
     captures.forEach(([ci, cj]) => board[ci][cj] = " ");
-
-    board[ti][tj] = board[fi][fj];
-    board[fi][fj] = " ";
-
-    selected = [ti, tj];
-    possibleMoves = getAdditionalCaptures(ti, tj, [fi, fj]);
-
-    if (possibleMoves.length > 0) {
-        document.getElementById('gameStatus').textContent = " Capture multiple - Continuez l'attaque !";
-        return; // Ne pas passer le tour
-    }
-
-    selected = null;
-    possibleMoves = [];
-    playerTurn = false;
-    initBoard();
-
+    board[ti][tj] = board[fi][fj]; board[fi][fj] = " ";
+    selected = [ti, tj]; possibleMoves = getAdditionalCaptures(ti, tj, [fi, fj]);
+    if (possibleMoves.length > 0) { document.getElementById('gameStatus').textContent = " Capture multiple - Continuez l'attaque !"; return; }
+    selected = null; possibleMoves = []; playerTurn = false; initBoard();
     if (!checkGameEnd()) setTimeout(makeAIMove, 500);
 }
 
-// ===== Récupération des mouvements valides =====
+// ===== Mouvements valides =====
 function getValidMoves(i, j) {
-    const moves = [];
-    const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
-    directions.forEach(([di, dj]) => {
-        const ni = i + di, nj = j + dj;
-        if (ni >= 0 && ni < ROWS && nj >= 0 && nj < COLS && board[ni][nj] === " ") {
-            moves.push([ni, nj]);
-        }
-    });
+    const moves = []; const dirs = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+    dirs.forEach(([di, dj]) => { const ni = i + di, nj = j + dj; if (ni >= 0 && ni < ROWS && nj >= 0 && nj < COLS && board[ni][nj] === " ") { moves.push([ni, nj]); } });
     return moves;
 }
 
-// ===== Captures pour un déplacement =====
+// ===== Captures =====
 function checkCaptures(fromI, fromJ, toI, toJ, player) {
-    const opponent = player === "W" ? "B" : "W";
-    const captures = [];
-    const di = toI - fromI;
-    const dj = toJ - fromJ;
-
-    // Capture par approche
+    const opp = player === "W" ? "B" : "W"; const caps = []; const di = toI - fromI, dj = toJ - fromJ;
     let ni = toI + di, nj = toJ + dj;
-    while (ni >= 0 && ni < ROWS && nj >= 0 && nj < COLS && board[ni][nj] === opponent) {
-        captures.push([ni, nj]);
-        ni += di; nj += dj;
-    }
-
-    // Capture par retrait
+    while (ni >= 0 && ni < ROWS && nj >= 0 && nj < COLS && board[ni][nj] === opp) { caps.push([ni, nj]); ni += di; nj += dj; }
     ni = fromI - di; nj = fromJ - dj;
-    while (ni >= 0 && ni < ROWS && nj >= 0 && nj < COLS && board[ni][nj] === opponent) {
-        captures.push([ni, nj]);
-        ni -= di; nj -= dj;
-    }
-
-    return captures;
+    while (ni >= 0 && ni < ROWS && nj >= 0 && nj < COLS && board[ni][nj] === opp) { caps.push([ni, nj]); ni -= di; nj -= dj; }
+    return caps;
 }
 
-// ===== Captures supplémentaires pour combos =====
-function getAdditionalCaptures(i, j, previous) {
-    const moves = getValidMoves(i, j);
-    return moves.filter(([ni, nj]) => checkCaptures(i, j, ni, nj, "W").length > 0);
-}
+// ===== Captures supplémentaires =====
+function getAdditionalCaptures(i, j, prev) { const m = getValidMoves(i, j); return m.filter(([ni, nj]) => checkCaptures(i, j, ni, nj, "W").length > 0); }
 
-// ===== IA basique =====
+// ===== IA =====
 function makeAIMove() {
     if (gameEnded) return;
     const moves = [];
-    for (let i = 0; i < ROWS; i++) {
-        for (let j = 0; j < COLS; j++) {
-            if (board[i][j] === "B") {
-                const valids = getValidMoves(i, j);
-                valids.forEach(([ni, nj]) => {
-                    const caps = checkCaptures(i, j, ni, nj, "B");
-                    moves.push({ from: [i, j], to: [ni, nj], captures: caps });
-                });
-            }
-        }
-    }
+    for (let i = 0; i < ROWS; i++) { for (let j = 0; j < COLS; j++) { if (board[i][j] === "B") { const val = getValidMoves(i, j); val.forEach(([ni, nj]) => { const caps = checkCaptures(i, j, ni, nj, "B"); moves.push({ from: [i, j], to: [ni, nj], captures: caps }); }); } } }
     if (moves.length === 0) return;
-
     moves.sort((a, b) => b.captures.length - a.captures.length);
-    const move = moves[0];
-    const [si, sj] = move.from;
-    const [ti, tj] = move.to;
-
-    move.captures.forEach(([ci, cj]) => board[ci][cj] = " ");
-    board[ti][tj] = board[si][sj];
-    board[si][sj] = " ";
-
-    playerTurn = true;
-    initBoard();
-    checkGameEnd();
+    const m = moves[0]; const [si, sj] = m.from, [ti, tj] = m.to; m.captures.forEach(([ci, cj]) => board[ci][cj] = " "); board[ti][tj] = board[si][sj]; board[si][sj] = " "; playerTurn = true; initBoard(); checkGameEnd();
 }
 
-// ===== Vérification fin de partie =====
+// ===== Fin de partie =====
 function checkGameEnd() {
-    const whiteLeft = board.flat().filter(c => c === "W").length;
-    const blackLeft = board.flat().filter(c => c === "B").length;
-
-    if (whiteLeft === 0) {
-        document.getElementById('gameStatus').textContent = " L'IA a gagné !";
-        gameEnded = true;
-        return true;
-    }
-    if (blackLeft === 0) {
-        document.getElementById('gameStatus').textContent = "Bravo, Tu as gagné !";
-        gameEnded = true;
-        return true;
-    }
+    const w = board.flat().filter(c => c === "W").length, b = board.flat().filter(c => c === "B").length;
+    if (w === 0) { document.getElementById('gameStatus').textContent = " L'IA a gagné !"; gameEnded = true; return true; }
+    if (b === 0) { document.getElementById('gameStatus').textContent = "Bravo, Tu as gagné !"; gameEnded = true; return true; }
     return false;
 }
 
-// ===== Mise à jour des scores =====
+// ===== Scores =====
 function updateScore() {
     document.getElementById('whiteScore').textContent = board.flat().filter(c => c === "W").length;
     document.getElementById('blackScore').textContent = board.flat().filter(c => c === "B").length;
 }
 
-// ===== Mise à jour du statut =====
+// ===== Statut =====
 function updateStatus() {
-    if (gameEnded) return;
-    const status = document.getElementById('gameStatus');
-    if (playerTurn) {
-        status.textContent = "À ton tour - Attaquez l'IA !";
-        status.style.background = "linear-gradient(135deg, #27ae60, #2ecc71)";
-    } else {
-        status.textContent = "L'IA va attaquer prépare toi !";
-        status.style.background = "linear-gradient(135deg, #e74c3c, #c0392b)";
-    }
+    if (gameEnded) return; const s = document.getElementById('gameStatus');
+    if (playerTurn) { s.textContent = "À ton tour - Attaquez l'IA !"; s.style.background = "linear-gradient(135deg,#27ae60,#2ecc71)"; }
+    else { s.textContent = "L'IA va attaquer prépare toi !"; s.style.background = "linear-gradient(135deg,#e74c3c,#c0392b)"; }
 }
 
 // ===== Réinitialisation =====
-document.getElementById('resetButton').addEventListener('click', () => {
-    createInitialBoard();
-    initBoard();
-});
+document.getElementById('resetButton').addEventListener('click', () => { createInitialBoard(); initBoard(); });
 
-// ===== Démarrage du jeu =====
-window.onload = function () {
-    createInitialBoard();
-    initBoard();
-};
+// ===== Démarrage =====
+window.onload = function () { createInitialBoard(); initBoard(); };
