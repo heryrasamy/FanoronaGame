@@ -8,7 +8,21 @@
 </head>
 <body>
     <h1>Fanorona 5x9</h1>
-    <canvas id="boardCanvas" width="900" height="500"></canvas>
+
+    <div id="scoreBoard">
+        <div>Blancs: <span id="whiteScore">22</span></div>
+        <div>Noirs: <span id="blackScore">22</span></div>
+    </div>
+
+    <div id="gameStatus">À ton tour - Attaquez l'IA !</div>
+
+    <div id="boardWrapper">
+        <canvas id="boardCanvas"></canvas>
+        <div id="boardContainer"></div>
+    </div>
+
+    <button id="resetButton">Réinitialiser</button>
+
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+window.addEventListener("DOMContentLoaded", () => {
+    // === TON SCRIPT V1.0 COMMENCE ICI ===
 // ===== Paramètres du plateau =====
 const ROWS = 5;
 const COLS = 9;
