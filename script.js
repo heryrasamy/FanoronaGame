@@ -22,8 +22,8 @@ window.addEventListener("DOMContentLoaded", () => {
     const ctx = boardCanvas.getContext('2d');
 
     function drawBoardCanvas() {
-        const w = boardWrapper.clientWidth;
-        const h = boardWrapper.clientHeight;
+        const w = boardWrapper.clientWidth - 40; // Ajustement pour le padding
+        const h = boardWrapper.clientHeight - 40;
         const dpr = window.devicePixelRatio || 1;
         boardCanvas.width = Math.floor(w * dpr);
         boardCanvas.height = Math.floor(h * dpr);
@@ -35,7 +35,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const cellW = w / COLS;
         const cellH = h / ROWS;
-        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--line').trim() || '#8b4513';
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--line').trim() || '#654321';
         ctx.lineWidth = 2;
 
         const P = (r, c) => [c * cellW + cellW / 2, r * cellH + cellH / 2];
@@ -67,7 +67,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 cell.classList.add('cell');
                 cell.dataset.row = i;
                 cell.dataset.col = j;
-                cell.textContent = board[i][j] === " " ? "" : board[i][j];
+                // Pas de texte, les pions sont gérés par CSS
                 if (board[i][j] === "B") cell.classList.add('ai');
                 if (board[i][j] === "W") cell.classList.add('player');
                 if (selected && selected[0] === i && selected[1] === j) cell.classList.add('selected');
@@ -190,4 +190,4 @@ window.addEventListener("DOMContentLoaded", () => {
     // ===== Démarrage =====
     window.onload = function () { createInitialBoard(); initBoard(); };
 
-}); 
+});
